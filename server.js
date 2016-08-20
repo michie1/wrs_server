@@ -75,7 +75,7 @@ app.get('/riders/:slug', (req, res) => {
 });
 
 app.get('/races/:date/:nameSlug', (req, res) => {
-    getData('race', req.params.date + '-' + req.params.nameSlug).then(race => {
+    getData('race', req.params.date + ':' + req.params.nameSlug).then(race => {
         res.json(race);
     });
 });
