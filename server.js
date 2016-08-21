@@ -10,6 +10,12 @@ let app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.use(function (req, res, next) {
+    // Allow :9000 to request api of this server
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:9000');
+    next();
+});
+
 app.get('/', (req, res) => {
     res.json({message: 'wrs api'});   
 });
@@ -30,7 +36,7 @@ function getData(modelClass, slug) {
 // Get all riders/races
 // @param {string} plural riders/races
 // @resolve {object} A list of riders/races
-function getAll(modelClassNamePlural) {
+function getAll(modelClassNamePlural, slug) {
     return new Promise((resolve, reject) => {
         let modelClassName = '';
         if (modelClassNamePlural === 'riders') {
@@ -41,8 +47,13 @@ function getAll(modelClassNamePlural) {
             reject();
         }
 
+        let index = modelClassNamePlural;
+        if(slug !== undefined) {
+            index += ':' + slug;
+        }
+
         // Get set of riders/races
-        client.smembers(modelClassNamePlural, (err, reply) => {
+        client.smembers(index, (err, reply) => {
             let p = []; // For each rider/race a promise
 
             // Get data for each rider/race
@@ -80,6 +91,16 @@ app.get('/races/:date/:nameSlug', (req, res) => {
     });
 });
 
+app.get('/results/:riderSlug', (req, res) => {
+    client.smembers('results:' + req.params.riderSlug, (err, reply) => {
+        let results = [];
+        reply.map(result => {
+            results.push(JSON.parse(result));
+        });
+        res.json(results);
+    });
+});
+
 app.get('/results/:riderSlug/:raceDate/:raceSlug', (req, res) => {
     getData('result', req.params.riderSlug + ':' + req.params.raceDate + ':' + req.params.raceSlug ).then(result => {
         res.json(result);
@@ -112,6 +133,9 @@ app.get('/setupTest', (req, res) => {
     // results
     client.set('result:michiel:2016-08-11:ronde-van-de-lier', 12);
     client.set('result:henk:2016-08-11:gouden-pijl-emmen', 31);
+
+    client.sadd('results:michiel', '{"result":"12","race":{"name":"Ronde van de Lier","slug":"ronde-van-de-lier","date":"2016-08-11"}}');
+    client.sadd('results:henk', '{"result":"21","race":{"name":"Gouden Pijl Emmen","slug":"gouden-pijl-emmen","date":"2016-08-11"}}');
 
     res.json({message: 'setupTest'});
 });
