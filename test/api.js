@@ -3,7 +3,7 @@ Object.is = require('object-is');
 
 var baseUrl = 'http://localhost:8080';
 
-casper.test.begin('WRS API', 15, function(test) {
+casper.test.begin('WRS API', 19, function(test) {
     casper.start(baseUrl, function() {
         casper.then(function() {
             test.assertEquals(this.getPlainText(), '{"message":"wrs api"}', '/');
@@ -59,14 +59,14 @@ casper.test.begin('WRS API', 15, function(test) {
 
         casper.thenOpen(baseUrl + '/results/michiel/2016-08-11/ronde-van-de-lier', function() {
             test.assertEquals(this.getPlainText(), 
-                              '12',
+                              '21',
                               this.getCurrentUrl().replace(baseUrl, ''));
         });
 
         casper.thenOpen(baseUrl + '/results/michiel', function() {
             var me = this;
             var expectedResults = new Set([
-                '{"result":"12","race":{"name":"Ronde van de Lier","slug":"ronde-van-de-lier","date":"2016-08-11"}}'
+                '{"result":"21","race":{"name":"Ronde van de Lier","slug":"ronde-van-de-lier","date":"2016-08-11"}}'
             ]);
 
             var results = JSON.parse(this.getPlainText());
@@ -80,11 +80,39 @@ casper.test.begin('WRS API', 15, function(test) {
        casper.thenOpen(baseUrl + '/results/henk', function() {
             var me = this;
             var expectedResults = new Set([
-                '{"result":"21","race":{"name":"Gouden Pijl Emmen","slug":"gouden-pijl-emmen","date":"2016-08-11"}}'
+                '{"result":"31","race":{"name":"Gouden Pijl Emmen","slug":"gouden-pijl-emmen","date":"2016-08-11"}}'
             ]);
 
             var results = JSON.parse(this.getPlainText());
             test.assertEquals(results.length, 1, 'One result in /results/henk');
+            
+            results.map(function(result) {
+                test.assert(expectedResults.has(JSON.stringify(result)), me.getCurrentUrl().replace(baseUrl, ''));
+            });
+        });
+
+       casper.thenOpen(baseUrl + '/results/2016-08-11/ronde-van-de-lier', function() {
+            var me = this;
+            var expectedResults = new Set([
+                '{"result":"21","rider":{"name":"Michiel","slug":"michiel"}}'
+            ]);
+
+            var results = JSON.parse(this.getPlainText());
+            test.assertEquals(results.length, 1, 'One result in ' + me.getCurrentUrl().replace(baseUrl, ''));
+            
+            results.map(function(result) {
+                test.assert(expectedResults.has(JSON.stringify(result)), me.getCurrentUrl().replace(baseUrl, ''));
+            });
+        });
+
+       casper.thenOpen(baseUrl + '/results/2016-08-11/gouden-pijl-emmen', function() {
+            var me = this;
+            var expectedResults = new Set([
+                '{"result":"31","rider":{"name":"Henk","slug":"henk"}}'
+            ]);
+
+            var results = JSON.parse(this.getPlainText());
+            test.assertEquals(results.length, 1, 'One result in ' + me.getCurrentUrl().replace(baseUrl, ''));
             
             results.map(function(result) {
                 test.assert(expectedResults.has(JSON.stringify(result)), me.getCurrentUrl().replace(baseUrl, ''));
