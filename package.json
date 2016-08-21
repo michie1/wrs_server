@@ -18,8 +18,11 @@
   },
   "homepage": "https://github.com/michie1/wrs_server#readme",
   "devDependencies": {
+    "es6-set": "^0.1.4",
     "gulp": "^3.9.1",
-    "gulp-nodemon": "^2.1.0"
+    "gulp-casperjs": "0.0.6",
+    "gulp-nodemon": "^2.1.0",
+    "object-is": "^1.0.1"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
