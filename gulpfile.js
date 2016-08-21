@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var nodemon = require('gulp-nodemon');
+var casperjs = require('gulp-casperjs');
 
 gulp.task('start', function() {
     nodemon({
@@ -10,3 +11,8 @@ gulp.task('start', function() {
         }
     })
 });
+
+gulp.task('test', function() {
+    gulp.src('test/*.js').pipe(casperjs());
+});
+    
