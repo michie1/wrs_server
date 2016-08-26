@@ -98,14 +98,22 @@ app.get('/races/:date/:nameSlug', (req, res) => {
 
 app.post('/race', (req, res) => {
     let slug = req.body.name.replace(' ', '-').toLowerCase();
-    client.sadd('races', req.body.date + ':' + slug);
-    client.set('race:' + req.body.date + ':' + slug, '{"name":"' + req.body.name + '", "date": "' + req.body.date + '", "category": "' + req.body.category + '", "report": "verslag"}');
+    let key = req.body.date + ':' + slug;
 
-    res.jsonp({
-        message: 'success',
-        slug: slug,
-        date: req.body.date
+    client.exists('race:' + key, (err, reply) => {
+        if (reply !== 1) { // is new
+            client.sadd('races', key);
+            client.set('race:' + key, '{"name":"' + req.body.name + '", "date": "' + req.body.date + '", "category": "' + req.body.category + '", "report": "verslag"}');
+        }
+        // if already exists: do not add, but continue without error.
+
+        res.jsonp({
+            message: 'success',
+            slug: slug,
+            date: req.body.date
+        });
     });
+
 });
 
 app.get('/results/:riderSlug', (req, res) => {
