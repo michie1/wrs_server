@@ -17,6 +17,7 @@ app.use(function (req, res, next) {
     //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:9876');
     //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:9000');
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
@@ -92,6 +93,18 @@ app.get('/riders/:slug', (req, res) => {
 app.get('/races/:date/:nameSlug', (req, res) => {
     getData('race', req.params.date + ':' + req.params.nameSlug).then(race => {
         res.json(race);
+    });
+});
+
+app.post('/race', (req, res) => {
+    let slug = req.body.name.replace(' ', '-').toLowerCase();
+    client.sadd('races', req.body.date + ':' + slug);
+    client.set('race:' + req.body.date + ':' + slug, '{"name":"' + req.body.name + '", "date": "' + req.body.date + '", "category": "' + req.body.category + '", "report": "verslag"}');
+
+    res.jsonp({
+        message: 'success',
+        slug: slug,
+        date: req.body.date
     });
 });
 
