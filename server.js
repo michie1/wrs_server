@@ -170,6 +170,39 @@ app.get('/results/:riderSlug/:raceDate/:raceSlug', (req, res) => {
     });
 });
 
+app.post('/result', (req, res) => {
+   
+    try {
+        // TODO check if race exists
+        client.exists('rider:' + req.body.riderSlug, (err, reply) => {
+            if (reply === 1) { // rider exists
+                //result:henk:2016-08-11
+                client.set('result:' + req.body.riderSlug + ':' + req.body.raceDate, req.body.result);
+
+                //results:henk
+                client.sadd('results:' + req.body.riderSlug, '{"result":"' + req.body.result + '","race":{"name":"' + req.body.raceName + '","slug":"' + req.body.raceSlug + '","date":"' + req.body.raceDate + '"}}');
+
+                //results:2016-08-11:gouden-pijl-emmen
+                client.sadd('results:' + req.body.raceDate + ':' + req.body.raceSlug, '{"result":"' + req.body.result + '","rider":{"name":"' + req.body.riderName + '","slug":"' + req.body.riderSlug + '"}}');
+
+                res.jsonp({
+                    message: 'success'
+                });
+            } else {
+                // update?
+                //throw "rider does not exist";
+                res.jsonp({
+                    message: 'rider does not exist.',
+                });
+            }
+        });
+    } catch(err) {
+        res.jsonp({
+            message: 'failure',
+        });
+    }
+});
+
 app.use('/fixture', fixture);
 
 app.listen(8080);
