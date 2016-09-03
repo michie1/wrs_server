@@ -97,23 +97,51 @@ app.get('/races/:date/:nameSlug', (req, res) => {
 });
 
 app.post('/race', (req, res) => {
-    let slug = req.body.name.replace(' ', '-').toLowerCase();
-    let key = req.body.date + ':' + slug;
+    try {
+        let slug = req.body.name.replace(' ', '-').toLowerCase();
+        let key = req.body.date + ':' + slug;
 
-    client.exists('race:' + key, (err, reply) => {
-        if (reply !== 1) { // is new
-            client.sadd('races', key);
-            client.set('race:' + key, '{"name":"' + req.body.name + '", "date": "' + req.body.date + '", "category": "' + req.body.category + '", "report": "verslag"}');
-        }
-        // if already exists: do not add, but continue without error.
+        client.exists('race:' + key, (err, reply) => {
+            if (reply !== 1) { // is new
+                client.sadd('races', key);
+                client.set('race:' + key, '{"name":"' + req.body.name + '", "date": "' + req.body.date + '", "category": "' + req.body.category + '", "report": "verslag"}');
+            }
+            // if already exists: do not add, but continue without error.
 
-        res.jsonp({
-            message: 'success',
-            slug: slug,
-            date: req.body.date
+            res.jsonp({
+                message: 'success',
+                slug: slug,
+                date: req.body.date
+            });
         });
-    });
+    } catch(err) {
+        res.jsonp({
+            message: 'failure',
+        });
+    }
+});
 
+app.post('/rider', (req, res) => {
+    try {
+        let slug = req.body.name.replace(' ', '-').toLowerCase();
+
+        client.exists('rider:' + slug, (err, reply) => {
+            if (reply !== 1) { // is new
+                client.sadd('riders', slug);
+                client.set('rider:' + slug, '{"name":"' + req.body.name + '"}');
+            }
+            // if already exists: do not add, but continue without error.
+
+            res.jsonp({
+                message: 'success',
+                slug: slug,
+            });
+        });
+    } catch(err) {
+        res.jsonp({
+            message: 'failure',
+        });
+    }
 });
 
 app.get('/results/:riderSlug', (req, res) => {
