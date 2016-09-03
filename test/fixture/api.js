@@ -37,7 +37,7 @@ router.get('/', (req, res) => {
     client.sadd('results:2016-08-11:gouden-pijl-emmen', '{"result":"31","rider":{"name":"Henk","slug":"henk"}}');
     client.sadd('results:2016-08-11:ronde-van-de-lier', '{"result":"21","rider":{"name":"Michiel","slug":"michiel"}}');
 
-    res.json({message: 'setupTest'});
+    res.json({message: 'success'});
 });
 
 module.exports = router;

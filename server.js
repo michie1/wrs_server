@@ -7,7 +7,7 @@ let client = redis.createClient();
 
 let app = express();
 
-let testSetup = require('./test/setup');
+let fixture = require('./test/fixture');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -170,6 +170,6 @@ app.get('/results/:riderSlug/:raceDate/:raceSlug', (req, res) => {
     });
 });
 
-app.use('/setupTest', testSetup);
+app.use('/fixture', fixture);
 
 app.listen(8080);

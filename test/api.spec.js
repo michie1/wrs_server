@@ -9,9 +9,9 @@ casper.test.begin('WRS API', 21, function(test) {
             test.assertEquals(this.getPlainText(), '{"message":"wrs api"}', '/');
         });
 
-        casper.thenOpen(baseUrl + '/setupTest/api', function() {
+        casper.thenOpen(baseUrl + '/fixture/api', function() {
             test.assertEquals(this.getPlainText(), 
-                              '{"message":"setupTest"}', 
+                              '{"message":"success"}', 
                               this.getCurrentUrl().replace(baseUrl, ''));
         });
 
