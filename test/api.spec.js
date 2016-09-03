@@ -3,7 +3,7 @@ Object.is = require('object-is');
 
 var baseUrl = 'http://localhost:8080';
 
-casper.test.begin('WRS API', 21, function(test) {
+casper.test.begin('WRS API', 22, function(test) {
     casper.start(baseUrl, function() {
         casper.then(function() {
             test.assertEquals(this.getPlainText(), '{"message":"wrs api"}', '/');
@@ -119,32 +119,56 @@ casper.test.begin('WRS API', 21, function(test) {
             });
         });
 
-       casper.thenOpen(baseUrl + '/race', {
-           method: 'post',
-           data: JSON.stringify({
-               'name': 'Tijdelijk Standaard',
-               'date':  '2016-09-03',
-               'category': 'criterium'
-           }),
-           headers: {
-               'Accept':'application/json',
-               'Content-type': 'application/json'
-           }
-       }, function() {
-           test.assertEquals(this.getPlainText(), '{"message":"success","slug":"tijdelijk-standaard","date":"2016-09-03"}', '/race post Tijdelijk Standaard');
+       casper.then(function() {
+           casper.thenOpen(baseUrl + '/race', {
+               method: 'post',
+               data: JSON.stringify({
+                   'name': 'Tijdelijk Standaard',
+                   'date':  '2016-09-03',
+                   'category': 'criterium'
+               }),
+               headers: {
+                   'Accept':'application/json',
+                   'Content-type': 'application/json'
+               }
+           }, function() {
+               test.assertEquals(this.getPlainText(), '{"message":"success","slug":"tijdelijk-standaard","date":"2016-09-03"}', '/race post Tijdelijk Standaard');
+           });
        });
 
-       casper.thenOpen(baseUrl + '/rider', {
-           method: 'post',
-           data: JSON.stringify({
-               'name': 'John',
-           }),
-           headers: {
-               'Accept':'application/json',
-               'Content-type': 'application/json'
-           }
-       }, function() {
-           test.assertEquals(this.getPlainText(), '{"message":"success","slug":"john"}', '/rider post John');
+       casper.then(function() {
+           casper.thenOpen(baseUrl + '/rider', {
+               method: 'post',
+               data: JSON.stringify({
+                   'name': 'John',
+               }),
+               headers: {
+                   'Accept':'application/json',
+                   'Content-type': 'application/json'
+               }
+           }, function() {
+               test.assertEquals(this.getPlainText(), '{"message":"success","slug":"john"}', '/rider post John');
+           });
+       });
+
+       casper.then(function() {
+           casper.thenOpen(baseUrl + '/result', {
+               method: 'post',
+               data: JSON.stringify({
+                   'riderName': 'Michiel',
+                   'riderSlug': 'michiel',
+                   'raceName': 'Ronde van de Lier',
+                   'raceSlug': 'ronde-van-de-lier',
+                   'raceDate': '2016-08-11',
+                   'result': 21
+               }),
+               headers: {
+                   'Accept':'application/json',
+                   'Content-type': 'application/json'
+               }
+           }, function() {
+               test.assertEquals(this.getPlainText(), '{"message":"success"}', '/result post Michiel Ronde van de Lier 21');
+           });
        });
 
     }).run(function() {
