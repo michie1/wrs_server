@@ -3,7 +3,7 @@ Object.is = require('object-is');
 
 var baseUrl = 'http://localhost:8080';
 
-casper.test.begin('WRS API', 19, function(test) {
+casper.test.begin('WRS API', 21, function(test) {
     casper.start(baseUrl, function() {
         casper.then(function() {
             test.assertEquals(this.getPlainText(), '{"message":"wrs api"}', '/');
@@ -31,8 +31,8 @@ casper.test.begin('WRS API', 19, function(test) {
 
         casper.thenOpen(baseUrl + '/races', function() {
             var expectedRaces = new Set([
-                '{"name":"Gouden Pijl Emmen","date":"2016-08-11","type":"criterium","report":"verslag"}',
-                '{"name":"Ronde van de Lier","date":"2016-08-11","type":"criterium","report":"verslag"}'
+                '{"name":"Gouden Pijl Emmen","date":"2016-08-11","category":"criterium","report":"verslag"}',
+                '{"name":"Ronde van de Lier","date":"2016-08-11","category":"criterium","report":"verslag"}'
             ]);
 
             var races = JSON.parse(this.getPlainText());
@@ -45,7 +45,7 @@ casper.test.begin('WRS API', 19, function(test) {
 
         casper.thenOpen(baseUrl + '/races/2016-08-11/ronde-van-de-lier', function() {
             test.assertEquals(this.getPlainText(), 
-                              '{"name":"Ronde van de Lier","date":"2016-08-11","type":"criterium","report":"verslag"}',
+                              '{"name":"Ronde van de Lier","date":"2016-08-11","category":"criterium","report":"verslag"}',
                              '/races/2016-08-11/ronde-van-de-lier');
                               this.getCurrentUrl().replace(baseUrl, '');
         });
@@ -119,6 +119,33 @@ casper.test.begin('WRS API', 19, function(test) {
             });
         });
 
+       casper.thenOpen(baseUrl + '/race', {
+           method: 'post',
+           data: JSON.stringify({
+               'name': 'Tijdelijk Standaard',
+               'date':  '2016-09-03',
+               'category': 'criterium'
+           }),
+           headers: {
+               'Accept':'application/json',
+               'Content-type': 'application/json'
+           }
+       }, function() {
+           test.assertEquals(this.getPlainText(), '{"message":"success","slug":"tijdelijk-standaard","date":"2016-09-03"}', '/race post Tijdelijk Standaard');
+       });
+
+       casper.thenOpen(baseUrl + '/rider', {
+           method: 'post',
+           data: JSON.stringify({
+               'name': 'John',
+           }),
+           headers: {
+               'Accept':'application/json',
+               'Content-type': 'application/json'
+           }
+       }, function() {
+           test.assertEquals(this.getPlainText(), '{"message":"success","slug":"john"}', '/rider post John');
+       });
 
     }).run(function() {
         test.done();
